@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Juego de Memoria</title>
+    <style>
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #ddd;
+            margin: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Juego de Memoria</h1>
+    <p>Introduce tus datos en una tabla:</p>
+    <table id="dataTable">
+        <tr>
+            <th>Título</th>
+            <th>Dato</th>
+        </tr>
+        <tr>
+            <td>Fruta 1</td>
+            <td>Manzana</td>
+        </tr>
+        <tr>
+            <td>Fruta 2</td>
+            <td>Plátano</td>
+        </tr>
+        <tr>
+            <td>Fruta 3</td>
+            <td>Uva</td>
+        </tr>
+        <!-- Agrega más filas según sea necesario -->
+    </table>
+    <button onclick="startGame()">Comenzar Juego</button>
+    <div id="gameBoard"></div>
+
+    <script>
+        let data = [];
+        let flippedCards = [];
+
+        function startGame() {
+            const dataTable = document.getElementById("dataTable");
+            const rows = dataTable.rows;
+            data = [];
+
+            for (let i = 1; i < rows.length; i++) {
+                const title = rows[i].cells[0].textContent;
+                const item = rows[i].cells[1].textContent;
+                data.push({ title, item });
+            }
+
+            // Shuffle the data
+            for (let i = data.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [data[i], data[j]] = [data[j], data[i]];
+            }
+
+            createGameBoard();
+        }
+
+        function createGameBoard() {
+            const gameBoard = document.getElementById("gameBoard");
+            gameBoard.innerHTML = "";
+
+            data.forEach(itemData => {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.textContent = "?";
+                card.addEventListener("click", () => flipCard(card, itemData));
+                gameBoard.appendChild(card);
+            });
+        }
+
+        function flipCard(card, itemData) {
+            if (flippedCards.length < 2) {
+                card.textContent = itemData.title; // Muestra el título
+                flippedCards.push({ card, itemData });
+
+                if (flippedCards.length === 2) {
+                    setTimeout(checkMatch, 1000);
+                }
+            }
+        }
+
+        function checkMatch() {
+            if (flippedCards[0].itemData.item === flippedCards[1].itemData.item) {
+                flippedCards.forEach(cardInfo => {
+                    cardInfo.card.classList.add("matched");
+                });
+            } else {
+                flippedCards.forEach(cardInfo => {
+                    cardInfo.card.textContent = "?";
+                });
+            }
+
+            flippedCards = [];
+
+            if (document.querySelectorAll(".matched").length === data.length) {
+                alert("¡Has ganado!");
+            }
+        }
+    </script>
+</body>
+</html>
